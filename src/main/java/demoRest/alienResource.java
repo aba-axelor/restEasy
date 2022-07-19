@@ -38,11 +38,26 @@ public class alienResource {
 	
 	@POST                                                    // for post we are using postman here
 	@Path("alien")
+	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})        // taking both xml and json 
 	public Alien createAlien(Alien a1) {
 		
 		System.out.println(a1);
 		repo.create(a1);
 		return a1; 
 	}
+	
+	@DELETE                                                 
+	@Path("alien/{id}")
+	public Alien killAlien(@PathParam("id") int id) {
+		Alien a = repo.getAlien(id);
+		
+		if(a.getId() != 0) {
+			repo.delete(id);
+		}
+		
+		return a; 
+	}
+	
+	
 
 }
