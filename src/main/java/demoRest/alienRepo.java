@@ -1,32 +1,20 @@
 package demoRest;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 
 public class alienRepo {
 	
-//	List<Alien> aliens;
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
+	EntityManager em = emf.createEntityManager();
 	
-	Connection con = null;
-	
+	List<Alien> aliens;
+
 	public alienRepo() {
-		
-		String url = "";
-		String username = "root";
-		String password = "0000";
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection(url,username,password);
-			
-		}
-		catch(Exception e) {
-			System.out.println(e);
-		}
 
 //		aliens = new ArrayList<>();
 //		
@@ -45,50 +33,64 @@ public class alienRepo {
 	}
 	
 	public List<Alien> getAliens(){
-		List<Alien> aliens = new ArrayList<>();
-		String sql = "select * from alien";
-		try {
-			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery(sql);
-			while(rs.next()) {
-				Alien a = new Alien();
-				a.setId(rs.getInt(1));
-				a.setName(rs.getString(2));
-				a.setPoints(rs.getInt(3));
-				
-				aliens.add(a);
-			}
-			
-		}
-		catch(Exception e) {
-			System.out.println(e);
-		}
+		
+		aliens = (List<Alien>)em.createQuery("from Alien").getResultList();
 		return aliens;
+			
+	//		List<Alien> aliens = new ArrayList<>();
+	//		String sql = "select * from alien";
+	//		try {
+	//			Statement st = con.createStatement();
+	//			ResultSet rs = st.executeQuery(sql);
+	//			while(rs.next()) {
+	//				Alien a = new Alien();
+	//				a.setId(rs.getInt(1));
+	//				a.setName(rs.getString(2));
+	//				a.setPoints(rs.getInt(3));
+	//				
+	//				aliens.add(a);
+	//			}
+	//			
+	//		}
+	//		catch(Exception e) {
+	//			System.out.println(e);
+	//		}
+
 	}
 	
 	public Alien getAlien(int id) {
 		
-		String sql = "select * from alien where id = "+id;
-		Alien a = new Alien();                                    // creating object
-		try {
-			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery(sql);
-			if(rs.next()) {
-				
-				a.setId(rs.getInt(1));
-				a.setName(rs.getString(2));
-				a.setPoints(rs.getInt(3));
-				
-				aliens.add(a);
-			}
-			
+		Alien a=em.find(Alien.class, id);
+		if(a!=null)
+		{
+			return a;
 		}
-		catch(Exception e) {
-			System.out.println(e);
+		else
+		{
+			return new Alien();
 		}
 		
-		return a;
-		
+//		String sql = "select * from alien where id = "+id;
+//		Alien a = new Alien();                                    // creating object
+//		try {
+//			Statement st = con.createStatement();
+//			ResultSet rs = st.executeQuery(sql);
+//			if(rs.next()) {
+//				
+//				a.setId(rs.getInt(1));
+//				a.setName(rs.getString(2));
+//				a.setPoints(rs.getInt(3));
+//				
+//				aliens.add(a);
+//			}
+//			
+//		}
+//		catch(Exception e) {
+//			System.out.println(e);
+//		}
+//		
+//		return a;
+//		
 //		for(Alien a : aliens) {
 //			if(a.getId() == id) 
 //				return a;
@@ -97,52 +99,77 @@ public class alienRepo {
 //		return null;
 	}
 	
+	
 	public void create(Alien a1) {
-		String sql = "insert into alien values (?,?,?)";
-		try {
-			PreparedStatement st = con.prepareStatement(sql);
-			st.setInt(1, a1.getId());
-			st.setString(2,a1.getName());
-			st.setInt(3, a1.getPoints());
-			st.executeUpdate();
-			}
-		catch(Exception e) {
-			System.out.println(e);
-		}
+		em.getTransaction().begin();
+		em.persist(a1);
+		em.getTransaction().commit();
 		
+//		String sql = "insert into alien values (?,?,?)";
+//		try {
+//			PreparedStatement st = con.prepareStatement(sql);
+//			st.setInt(1, a1.getId());
+//			st.setString(2,a1.getName());
+//			st.setInt(3, a1.getPoints());
+//			st.executeUpdate();
+//			}
+//		catch(Exception e) {
+//			System.out.println(e);
+//		}
 //		aliens.add(a1);
 	}
 	
+	
 	public void update(Alien a1) {
-		String sql = "update alien set name=?, points=?, where id = ?";
-		try {
-			PreparedStatement st = con.prepareStatement(sql);
-			
-			st.setString(1,a1.getName());
-			st.setInt(2, a1.getPoints());
-			st.setInt(3, a1.getId());
-			st.executeUpdate();
-			}
-		catch(Exception e) {
-			System.out.println(e);
-		}
 		
+		Alien a=em.find(Alien.class, a1.getId());
+		a.setName(a1.getName());
+		em.getTransaction().begin();
+		em.persist(a);
+		em.getTransaction().commit();
+		
+//		String sql = "update alien set name=?, points=?, where id = ?";
+//		try {
+//			PreparedStatement st = con.prepareStatement(sql);
+//			
+//			st.setString(1,a1.getName());
+//			st.setInt(2, a1.getPoints());
+//			st.setInt(3, a1.getId());
+//			st.executeUpdate();
+//			}
+//		catch(Exception e) {
+//			System.out.println(e);
+//		}
 //		aliens.add(a1);
 	}
+	
 	
 	public void delete(int id) {
 		
-		String sql = "delete from alien where id = ?";
-		try {
-			PreparedStatement st = con.prepareStatement(sql);
-			
-			st.setInt(1, id);
-			st.executeUpdate();
-			}
-		catch(Exception e) {
-			System.out.println(e);
-		}
+		Alien a = em.find(Alien.class, id);
+		em.getTransaction().begin();
+		em.remove(a);
+		em.getTransaction().commit();
+		
+//		String sql = "delete from alien where id = ?";
+//		try {
+//			PreparedStatement st = con.prepareStatement(sql);
+//			
+//			st.setInt(1, id);
+//			st.executeUpdate();
+//			}
+//		catch(Exception e) {
+//			System.out.println(e);
+//		}
 		
 	}
-
+	
+	public void listAliens()
+	{
+		for(Alien a: aliens)
+		{
+			System.out.println(a);
+		}
+	}
+	
 }
