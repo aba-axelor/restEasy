@@ -1,15 +1,31 @@
 package demoRest;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlRootElement;
+
 
 @XmlRootElement                                                 // we want Alien as the root element
 @Entity
 public class Alien {                       
 	
 	@Id
-	private int id;                                       //ID
+	@GeneratedValue(generator = "alien_sequence", strategy = GenerationType.AUTO)
+	private int id; 
+	private String name; 
+	private int points; 
+	
+	public Alien() {}
+
+	public Alien( String name, int points) {
+		super();
+		this.name = name;
+		this.points = points;
+	}
+	
+	
 	public int getId() {
 		return id;
 	}
@@ -17,8 +33,7 @@ public class Alien {
 		this.id = id;
 	}
 	
-	
-	private String name;                                 //NAME
+                           
 	public String getName() {
 		return name;
 	}
@@ -26,8 +41,7 @@ public class Alien {
 		this.name = name;
 	}
 	
-	
-	private int points;                                 //POINTS
+                         
 	public int getPoints() {
 		return points;
 	}
@@ -35,9 +49,4 @@ public class Alien {
 		this.points = points;
 	}
 	
-	
-	@Override
-	public String toString() {
-		return "Alien [id=" + id + ", name=" + name + ", points=" + points + "]";
-	}
 }

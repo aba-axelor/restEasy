@@ -17,5 +17,11 @@
         <servlet-name>jersey-servlet</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
+    
+    <listener>
+      <listener-class>demoRest.MyGuiceConfig</listener-class>
+    </listener> 
       
 </web-app>
+
+
